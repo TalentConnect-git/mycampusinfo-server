@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import Auth from '../models/auth/auth-model.js';
 import { googleClient } from '../utils/google-client.js';
+
+const bareGoogleClient = new OAuth2Client();
 
 export const handleGoogleAuthService = async (tokenId, userType, isWeb, accountType, action = null) => {
   if (!tokenId) {
@@ -27,9 +30,9 @@ export const handleGoogleAuthService = async (tokenId, userType, isWeb, accountT
     });
     payload = ticket.getPayload();
   } catch (verifyError) {
-    console.warn('Google verifyIdToken with audience failed, trying direct verification:', verifyError.message);
+    console.warn('Google verifyIdToken with audience failed, trying direct signature verification:', verifyError.message);
     try {
-      const ticket = await googleClient.verifyIdToken({
+      const ticket = await bareGoogleClient.verifyIdToken({
         idToken: tokenId,
       });
       payload = ticket.getPayload();
